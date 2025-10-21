@@ -147,37 +147,36 @@ senha_func VARCHAR(20) NOT NULL
 )
 GO
 
-CREATE TABLE Agenda_Cliente(
-    Id_agenda_cliente INT IDENTITY PRIMARY KEY,
-    Id_cliente INT NULL REFERENCES Cliente(id_cliente),
-    DiaSemana INT NOT NULL,
-    Horario TIME NOT NULL
+CREATE TABLE Agenda_Cliente (
+	id_agenda_cliente INT IDENTITY PRIMARY KEY,
+	id_cliente INT FOREIGN KEY REFERENCES Cliente(id_cliente),
+	diasemana TINYINT NOT NULL,
+	horario VARCHAR(10) NOT NULL 
 );
 GO
 
+INSERT INTO Agenda_Cliente VALUES
+(2, 5, '09:00'),
+(2, 6, '15:00'),
+(2, 4, '10:00'),
+(2, 2, '17:00')
+GO
 
-CREATE TABLE Agenda_Prestador(
-	id_agenda_prestador INT PRIMARY KEY iDENTITY,
+CREATE TABLE Agenda_Prestador (
+	id_agenda_prestador INT IDENTITY PRIMARY KEY,
 	id_prestador INT FOREIGN KEY REFERENCES Prestador(id_prestador),
-    DiaSemana INT NOT NULL,
-    Horario TIME NOT NULL
-)
-GO
-
-CREATE TABLE Agendamento (
-    id_agendamento INT IDENTITY PRIMARY KEY,
-    id_prestador INT NOT NULL,
-    id_cliente INT NOT NULL,
-    diasemana TINYINT NOT NULL,
-    horario VARCHAR(10) NOT NULL,
-    CONSTRAINT FK_Agendamento_Prestador FOREIGN KEY (id_prestador)
-    REFERENCES Prestador(id_prestador),
-    CONSTRAINT FK_Agendamento_Cliente FOREIGN KEY (id_cliente)
-    REFERENCES Cliente(id_cliente)
+	diasemana TINYINT NOT NULL,
+	horario VARCHAR(10) NOT NULL
 );
 GO
 
-
+INSERT INTO Agenda_Prestador VALUES
+(1, 6, '09:00'),
+(1, 7, '10:30'), 
+(1, 2, '15:00'),  
+(1, 4, '16:00'),
+(1, 2, '17:00')
+GO
 
 CREATE TABLE Chat (
     id_chat INT PRIMARY KEY IDENTITY,
@@ -886,10 +885,105 @@ END
 GO
 
 EXEC SP_BuscarHorariosCompativeis 
-    @ClienteID = 1,
+    @ClienteID = 2,
     @PrestadorID = 1;
 GO
 
+
+
 /*AGENDA PRESTADOR*/
+CREATE PROCEDURE sp_InserirAgendaPrestador
+	@id_agenda_prestador int,
+    @id_prestador INT = NULL,
+    @diasemana TINYINT,
+    @horario varchar(10)
+AS
+BEGIN
+    INSERT INTO Agenda_Prestador(id_agenda_prestador, id_prestador, diasemana, horario)
+    VALUES (@id_agenda_prestador, @id_prestador, @diasemana, @Horario);
+
+    SELECT SCOPE_IDENTITY() AS NovoIdAgendaPrestador;
+END;
+GO
+
+CREATE PROCEDURE sp_ObterAgendaPorPrestador
+    @id_prestador INT
+AS
+BEGIN
+    SELECT * FROM Agenda_Prestador WHERE id_prestador = @id_prestador ORDER BY horario;
+END;
+GO
+
+CREATE PROCEDURE sp_AtualizarAgendaPrestador
+    @id_agenda_prestador INT,
+    @id_prestador INT = NULL,
+    @diasemana TINYINT,
+    @horario varchar(10)
+	AS
+BEGIN
+    UPDATE Agenda_Prestador
+    SET id_prestador = @id_prestador,
+        diasemana = @diasemana,
+        horario = @horario
+    WHERE id_agenda_prestador = @id_agenda_prestador;
+END;
+GO
+
+CREATE PROCEDURE sp_DeletarAgendaPrestador
+    @id_agenda_prestador INT
+AS
+BEGIN
+    DELETE FROM Agenda_Prestador WHERE id_agenda_prestador = @id_agenda_prestador;
+END;
+GO
+
+
 
 /*AGENDA CLIENTE*/
+CREATE PROCEDURE sp_InserirAgendaCliente
+	@id_agenda_cliente int,
+    @id_cliente INT = NULL,
+    @diasemana TINYINT,
+    @horario varchar(10)
+AS
+BEGIN
+    INSERT INTO Agenda_Cliente(id_agenda_cliente, id_cliente, diasemana, horario)
+    VALUES (@id_agenda_cliente, @id_cliente, @diasemana, @Horario);
+
+    SELECT SCOPE_IDENTITY() AS NovoIdAgendaCliente;
+END;
+GO
+
+
+CREATE PROCEDURE sp_ObterAgendaPorCliente
+    @id_cliente INT
+AS
+BEGIN
+    SELECT * FROM Agenda_Cliente WHERE id_cliente = @id_cliente ORDER BY horario;
+END;
+GO
+
+
+CREATE PROCEDURE sp_AtualizarAgendaCliente
+    @id_agenda_cliente INT,
+    @id_cliente INT = NULL,
+    @diasemana TINYINT,
+    @horario varchar(10)
+	AS
+BEGIN
+    UPDATE Agenda_Cliente
+    SET id_cliente = @id_cliente,
+        diasemana = @diasemana,
+        horario = @horario
+    WHERE id_agenda_cliente = @id_agenda_cliente;
+END;
+GO
+
+
+CREATE PROCEDURE sp_DeletarAgendaCliente
+    @id_agenda_cliente INT
+AS
+BEGIN
+    DELETE FROM Agenda_Cliente WHERE id_agenda_cliente = @id_agenda_cliente;
+END;
+Go
