@@ -13,14 +13,13 @@ builder.Services.AddCors(options =>
                       });
 });
 
-// Add services to the container.
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -29,7 +28,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(MyAllowSpecificOrigins); // <-- fora do if
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 
